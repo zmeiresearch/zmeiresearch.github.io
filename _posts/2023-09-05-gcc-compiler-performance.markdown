@@ -1,4 +1,9 @@
-# GCC compiler performance
+---                                                                                                                     
+layout: post                                                                                                            
+title:  "GCC compiler performance"
+date:   2023-09-05 14:56:24 +0300                                                                                       
+categories: gcc embedded benchmark
+---
 
 ## What?
 A totally unscientific benchmark of GCC on a real project that I'm currently working.
@@ -73,6 +78,7 @@ real	0m20,311s
 
 ### Build time
 Build time in seconds:
+
 | GCC version | Avg. time | StdDev |
 | --- | --- | --- |
 | 6.3.1 | 15.757 | 1.616 |
@@ -80,6 +86,7 @@ Build time in seconds:
 
 ### Binary size
 Sizes in bytes as obtained from `arm-none-eabi-size`:
+
 | GCC version | Text | Data | Bss | Total |
 | --- | --- | --- | --- | --- |
 | 6.3.1 | 54704	| 228 | 129344	 184276 |
