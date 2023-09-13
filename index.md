@@ -1,8 +1,2 @@
-# H1 example
+# Welcome to Zmeiresearch blog
 
-## H2 example
-
-Sample text
-
-- sample list
-- sample two
