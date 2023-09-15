@@ -89,7 +89,7 @@ Sizes in bytes as obtained from `arm-none-eabi-size`:
 
 | GCC version | Text | Data | Bss | Total |
 | --- | --- | --- | --- | --- |
-| 6.3.1 | 54704	| 228 | 129344	 184276 |
+| 6.3.1 | 54704	| 228 | 129344 | 184276 |
 | 12.2 | 53752 | 220 | 129656 | 183628 |
 
 
