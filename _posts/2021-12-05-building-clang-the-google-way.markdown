@@ -1,4 +1,10 @@
-# Building Clang the Google way
+---
+layout: post
+title:  "Building Clang the Google way"
+author: Ivan
+date:   2021-12-05 15:49:24 +0200 
+categories: clang fuchsia
+---
 
 ## What?
 Build an archive similar to the ones available from [CIPD](https://chrome-infra-packages.appspot.com/p/fuchsia/clang)
@@ -9,6 +15,7 @@ Try and get Fuchsia built on a new platform.
 ## How?
 
 ### TL/DR
+This is an old post. Probably a lot hast changed. But it felt like a game of cat and mouse and I did not manage to see through it all.
 
 ### Long version
 
@@ -26,7 +33,7 @@ What's annoying, however, is that Fuchsia build systems makes it seemingly easy 
 While basic usage (e.g. downloading) of CIPD packages is unrestricted, there is a profound lack of information on how actually CIPD works and, more importantly, how packages are built. There *is* documentation, but it is usually centered at specific tools, is outdated or assumes one is a *googler* - which I am not.
 
 What intially led to some confusion was what exactly CIPD does and what it does not. And building a package CIPD does **not** do. Rather, there is a separate set of tools, living under the [Chromium repository](https://chromium.googlesource.com/infra/luci/) that *seem* to be doing the building. Studiying the documentation, there should be a set of 'recipes' specifying how to build a package - which sounds reasonable. Now, where would one find the recipe for clang - and the other Fuchsia-required packages? Maybe they live in [lucy-recipes](https://chromium.googlesource.com/infra/luci/recipes-py/)? Nah, that would've been too obvious. Back to reading documentation, duckduckgoing/googling and when that did not work, grep-ing the fuchsia and chromium source code. And there was a lead:
-```
+```shell
 ivan@balha:~/fuchsia$ rg recipes
 ...
 tools/integration/fint/README.md
@@ -36,17 +43,17 @@ tools/integration/fint/README.md
 
 Aha! A quick `git clone https://fuchsia.googlesource.com/infra/recipes/ && find ./ -name "*clang*` turned out a `./recipes/contrib/clang_toolchain.py`. Studying the contents I was sure I'm on the right track - there are options to turn on/off LTO, use LLD on OSX and a few other Clang/LLVM-specific ones. Time to kick off this build!
 
-```
+```shell
 ivan@balha:~/Work/fuchsia-infra/recipes$ ./recipes.py run contrib/clang_toolchain enable_lto=thin
 ```
 
 At first, I experienced a failure related to a missing git directory, fixed by running
-```
+```shell
 ivan@balha:~/Work/fuchsia-infra/recipes$ mkdir ~/Work/fuchsia-infra/recipes/.recipe_deps/recipe_engine/workdir/cache/git
 ```
 
 Next, the recipe assumes goma is available and complains with authentication/configuration failures. No command-line switch seems to exist, thus a quick manual patch got the job done:
-```
+```shell
 ivan@balha:~/Work/fuchsia-infra/recipes$ git diff recipes/contrib/clang_toolchain.py
 diff --git a/recipes/contrib/clang_toolchain.py b/recipes/contrib/clang_toolchain.py
 index 7d68cf787..7df0d2fc4 100644
@@ -76,14 +83,14 @@ index 7d68cf787..7df0d2fc4 100644
 ```
 
 Running the recipe command again resulted in 5 hours of compilation and testing (on a slow 4C/4T Ryzen 3 machine) which worked OK, only for the process to fail with a:
-```
+```shell
 [E2021-11-09T01:33:50.197624+02:00 3124 0 annotate.go:273] original error: interactive login is required
 #4 runtime/asm_amd64.s:1371 - runtime.goexit()
 cas: failed to create cas client: failed to get PerRPCCredentials: interactive login is required
 ```
 
 Never heard of CAS before. Googling does not produce meaningful results at first. Running the executable gives:
-```
+```shell
 ivan@balha:~/Work/zmeiresearch.github.io/blog$ /mnt/phys2/home/ivan/Work/fuchsia-infra/recipes/.recipe_deps/recipe_engine/workdir/cache/cipd/infra/tools/luci/cas/git_revision%3Acefd07c708bfd0bb37362a0c90e53fa31b0f8793/.cipd/pkgs/0/_current/cas
 Client tool to access CAS.
 

@@ -1,2 +1,5 @@
-# Welcome to Zmeiresearch blog
+---
+layout: home
+---
+# Welcome to Zmei's den
 

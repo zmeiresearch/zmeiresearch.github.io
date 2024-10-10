@@ -1,7 +1,8 @@
----                                                                                                                     
-layout: post                                                                                                            
+---
+layout: post
 title:  "GCC compiler performance"
-date:   2023-09-05 14:56:24 +0300                                                                                       
+author: Ivan
+date:   2023-09-05 14:56:24 +0300
 categories: gcc embedded benchmark
 ---
 
@@ -12,7 +13,7 @@ A totally unscientific benchmark of GCC on a real project that I'm currently wor
 Because switching from GCC 6 to GCC12 felt slow and I wanted to know exactly how much slower it really is.
 
 ## Background
-The project in question is a custom firmware for a Cortex-M4F MCU (Atmel AT-SAME51 to be specific). It's developed mainly in plain old C, with a bit of C++ thrown in. Even when C++ is used, it's mostly as a C-with-classes. The specific compiler options in place are:
+It's a real project, a custom firmware for a Cortex-M4F MCU (Atmel AT-SAME51 to be specific). It's developed mainly in plain old C, with a bit of C++ thrown in. Even when C++ is used, it's mostly as C-with-classes. The specific compiler options in place are:
 ```
 -Os 
 -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 
