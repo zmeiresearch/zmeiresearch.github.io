@@ -26,13 +26,13 @@ beta_kubernetes_io_instance_type=\"cx42\", beta_kubernetes_io_os=\"linux\", csi_
  failure_domain_beta_kubernetes_io_regio' (err-mimir-duplicate-label-names)"
 ```
 
-This is just a sample, I was getting lots of messages for different duplicate labels, not only for **node_kubernetes_io_instance_type**.
+This is just a sample, I was getting lots of messages for different duplicate labels, not only **node_kubernetes_io_instance_type**.
 
-Google showed up some results like [This](https://github.com/grafana/mimir/discussions/8344) and [This](https://github.com/grafana/alloy/issues/1006) ones. However, the *Quick Workaround* mentioned didn't really work out for me... I dug a bit deeper and these two issues didn't really seem to be the same as mine - in both cases an **err-mimir-duplicate-label-names** was generated, but I was not doing any relabelling on my metrics at all. 
+Google showed up some results like [This](https://github.com/grafana/mimir/discussions/8344) and [This](https://github.com/grafana/alloy/issues/1006). However, the *Quick Workaround* mentioned didn't work for me... I dug a bit deeper and these two issues didn't really seem to be the same as mine - in both cases an **err-mimir-duplicate-label-names** was generated, but I was not doing any relabelling on my metrics at all. 
 
 After spending a few hours fighting with this, including disabling almost all metrics collection and still getting errors I was out of ideas. 
 
-Now a step back. I'm using Alloy in a distributed way in a *daemonset*, meaning each node gets it's own **Alloy** pod - in my case I had 6 of them. Also, following best practices, I've configured **Alloy** to do live config reloads to minimize downtime. This all meant that my **Alloy** pods were up for 10+ days... In an act of desperation I followed the old Level-1 support advice: "Have you tried turning it off and on again?". In my case:
+Now a step back. I'm using Alloy in a distributed way in a *daemonset*, meaning each node gets it's own **Alloy** pod - in my case I had 6 of them. Also, I've configured **Alloy** to do live config reloads to minimize downtime. This all meant that my **Alloy** pods were up for 10+ days... In an act of desperation I followed the old Level-1 Tech support advice: **"Have you tried turning it off and on again?"**. In my case:
 
 ```shell
 kubectl rollout restart daemonset.apps/alloy -n monitoring
