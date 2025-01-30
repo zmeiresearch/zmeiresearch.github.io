@@ -17,7 +17,13 @@ I have a monitoring/alerting set-up consisting of Grafana itself for visualisati
 Lately I've looked into pushing more workloads to the cluster and decided I need more metrics at pod level. Lookin at what was scraped, I identified two sets of metrics that I wanted in - specifically [Kube-State-Metrics](https://github.com/kubernetes/kube-state-metrics) and [cAdvisor](https://github.com/google/cadvisor/). It's a bit of a mess to set that up in **Alloy** (another piece to describe in a future post) and it involved lots of edit to the Alloy configuration file. At one point in time I started receiving some errors in both **Mimir** and **Alloy** logs:
 
 ```
-ts=2025-01-29T14:12:10.555161198Z level=error msg="non-recoverable error" component_path=/ component_id=prometheus.remote_write.default_mimir subcomponent=rw remote_name=711a87 url=http://mimir-nginx.monitoring.svc.cluster.local:80/api/v1/push count=707 exemplarCount=0 err="server returned HTTP status 400 Bad Request: received a series with duplicate label name, label: 'node_kubernetes_io_instance_type' series: 'machine_scrape_error{beta_kubernetes_io_arch=\"amd64\", beta_kubernetes_io_instance_type=\"cx42\", beta_kubernetes_io_os=\"linux\", csi_hetzner_cloud_location=\"hel1\", failure_domain_beta_kubernetes_io_regio' (err-mimir-duplicate-label-names)"
+ts=2025-01-29T14:12:10.555161198Z level=error msg="non-recoverable error" component_path=/ 
+component_id=prometheus.remote_write.default_mimir subcomponent=rw remote_name=711a87 
+url=http://mimir-nginx.monitoring.svc.cluster.local:80/api/v1/push count=707 exemplarCount=0 
+err="server returned HTTP status 400 Bad Request: received a series with duplicate label name, 
+label: 'node_kubernetes_io_instance_type' series: 'machine_scrape_error{beta_kubernetes_io_arch=\"amd64\",
+beta_kubernetes_io_instance_type=\"cx42\", beta_kubernetes_io_os=\"linux\", csi_hetzner_cloud_location=\"hel1\",
+ failure_domain_beta_kubernetes_io_regio' (err-mimir-duplicate-label-names)"
 ```
 
 This is just a sample, I was getting lots of messages for different duplicate labels, not only for **node_kubernetes_io_instance_type**.
@@ -40,3 +46,12 @@ What has probably happened is that during all the configuration file restarts, A
 - Live reload is not used
 
 But it's good practice to keep in mind that sometimes a good old restart is the proper solution.
+
+## Bonus: Singleline query Kubernetes API from within a pod with curl
+For my own easy reference:
+```shell
+curl \
+  --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt   \
+  --header "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+  https://kubernetes.default.svc.cluster.local/api/v1/nodes/${NODE}/proxy/pods
+```
