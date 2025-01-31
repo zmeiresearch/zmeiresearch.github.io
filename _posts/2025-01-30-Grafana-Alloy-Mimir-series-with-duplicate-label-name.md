@@ -47,6 +47,22 @@ What has probably happened is that during all the configuration file restarts, A
 
 But it's good practice to keep in mind that sometimes a good old restart is the proper solution.
 
+## Addendum: two days later
+After some more experiments I have a pretty reliable way of triggering this. Configure **Alloy** to scrape more metrics than **Mimir** will accept, you'll soon get a *HTTP 429* like so:
+```
+ts=2025-01-31T21:11:59.769007025Z level=warn msg="Failed to send batch, retrying" component_path=/ 
+component_id=prometheus.remote_write.default_mimir subcomponent=rw remote_name=183919 
+url=http://mimir-nginx.monitoring.svc.cluster.local:80/api/v1/push 
+err="server returned HTTP status 429 Too Many Requests: the request has been rejected 
+because the tenant exceeded the ingestion rate limit, set to 10000 items/s with a maximum 
+allowed burst of 200000. This limit is applied on the total number of samples, exemplars 
+and metadata received across all distributors (err-mimir-tenant-max-ingestion-rate). 
+To adjust the related per-tenant limits, configure -distributor.ingestion-rate-limit 
+and -distributor.ingestion-burst-size, or contact your service administrator."
+```
+
+Fair enough, Adjust the limits or reduce metrics volume and the error should go away, right? Yep, but more often than not **err-mimir-duplicate-label-names** will start popping up, prompting a restart of **Alloy**.
+
 ## Bonus: Singleline query Kubernetes API from within a pod with curl
 For my own easy reference:
 ```shell
